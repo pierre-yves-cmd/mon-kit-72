@@ -56,3 +56,11 @@ permissions système et le repli `execCommand` ne sont pas validés. Les pages
 Amazon, prix, stocks et l’attribution effective des commissions ne sont pas
 vérifiés ; aucune commande ni achat n’est effectué. Aucun déploiement de
 production n’est réalisé par cette correction.
+
+## Visibilité des liens produit
+
+Les liens Amazon restent visibles sous les articles concernés, y compris quand
+ils sont cochés ou restaurés depuis localStorage. Le test clavier vérifie aussi
+leur présence après rechargement et leur libellé après changement FR/EN. Le test
+de données existantes couvre un article de matériel déjà coché. Aucun changement
+des recherches Amazon, du tag affilié ou des données enregistrées.

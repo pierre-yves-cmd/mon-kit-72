@@ -123,7 +123,6 @@ const en=document.documentElement.lang==="en";
 document.querySelectorAll("#items .item").forEach((row,i)=>{
 const key=step+"-"+i,query=offers[key];if(!query)return;
 const old=row.querySelector(".inline-affiliate");if(old)old.remove();
-if(row.querySelector("input")?.checked)return;
 const label=row.querySelector("label");if(!label)return;
 const wrapper=document.createElement("span");wrapper.className="inline-affiliate";
 const link=document.createElement("a");const url=new URL("https://www.amazon.fr/s");url.searchParams.set("k",query);url.searchParams.set("tag",tag);

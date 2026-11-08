@@ -71,6 +71,7 @@ test('existing storage survives language changes, navigation and reload; reset h
   await page.goto('/');
   await expect(page.locator('#heading')).toHaveText('3. Complete the kit');
   await expect(page.locator('#item-2-1')).toBeChecked();
+  await expect(page.locator('#item-2-1').locator('..').locator('a')).toBeVisible();
   await expect(page.locator('#progressText')).toHaveText('14% ready');
   const before = await page.evaluate(() => ({p: localStorage.getItem('mon-kit-72h-v1'), g: localStorage.getItem('mon-kit-72h-groceries-v1')}));
   await language(page, 'fr');
@@ -143,7 +144,15 @@ test('keyboard checklist action updates progress and affiliate visibility; delay
   await page.locator('#item-0-0').focus();
   await page.keyboard.press('Space');
   await expect(page.locator('#item-0-0')).toBeChecked();
-  await expect(page.locator('.inline-affiliate')).toHaveCount(0);
+  await expect(page.locator('.inline-affiliate')).toHaveCount(1);
+  await expect(page.locator('.inline-affiliate a')).toBeVisible();
+  await page.reload();
+  await expect(page.locator('#item-0-0')).toBeChecked();
+  await expect(page.locator('.inline-affiliate a')).toBeVisible();
+  await language(page, 'en');
+  await expect(page.locator('.inline-affiliate a')).toHaveText('Find on Amazon');
+  await language(page, 'fr');
+  await expect(page.locator('.inline-affiliate a')).toHaveText('Voir sur Amazon');
   await expect(page.locator('#progress')).toHaveAttribute('aria-valuenow', '5');
   await page.locator('#next').click();
   await page.locator('#copyShop').click();
