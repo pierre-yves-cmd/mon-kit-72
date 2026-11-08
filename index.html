@@ -26,7 +26,7 @@ const languageKey="mon-kit-72h-language";
 let selected;try{selected=localStorage.getItem(languageKey)}catch(e){}
 let lang=selected==="fr"||selected==="en"?selected:((navigator.language||"fr").toLowerCase().startsWith("fr")?"fr":"en");
 function apply(){
- document.documentElement.lang=lang;
+ if(document.documentElement.lang!==lang)document.documentElement.lang=lang;
  document.title=lang==="fr"?"Mon Kit 72h — Préparez-vous simplement":"My 72h Kit — Prepare simply";
  const walker=document.createTreeWalker(document.body,NodeFilter.SHOW_TEXT);let node;
  while(node=walker.nextNode()){
@@ -93,8 +93,7 @@ document.getElementById("bar").style.width=pct+"%";document.getElementById("prog
 const oldRender=render;render=function(){oldRender();renderShop()};
 const originalReset=document.getElementById("reset").onclick;
 document.getElementById("reset").onclick=()=>{const was=Object.keys(checked).filter(k=>checked[k]).length;if(confirm(document.documentElement.lang==="en"?"Clear all completed tasks and shopping items?":"Effacer toutes les cases cochées, y compris les courses ?")){checked={};state.checked={};step=0;store();save();render()}};
-const observer=new MutationObserver(()=>{observer.disconnect();renderShop();observer.observe(document.documentElement,{attributes:true,attributeFilter:["lang"]})});
-observer.observe(document.documentElement,{attributes:true,attributeFilter:["lang"]});
+document.querySelectorAll(".language button").forEach(button=>button.addEventListener("click",()=>queueMicrotask(renderShop)));
 renderShop();
 })();
 </script></body></html>
