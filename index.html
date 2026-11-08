@@ -39,10 +39,10 @@ function apply(){
   if(!translated&&trimmed.startsWith("Étape "))translated="Step "+trimmed.slice(6);
   if(!translated&&trimmed.endsWith(" % prêt"))translated=trimmed.replace(" % prêt","% ready");
   if(!translated&&trimmed.endsWith(" actions"))translated=trimmed.replace(" actions"," tasks");
-  node.nodeValue=lang==="en"&&translated?original.replace(trimmed,translated):original;
+  const desired=lang==="en"&&translated?original.replace(trimmed,translated):original;if(node.nodeValue!==desired)node.nodeValue=desired;
  }
- document.querySelectorAll("[aria-label]").forEach(el=>{if(!originalAttrs.has(el))originalAttrs.set(el,el.getAttribute("aria-label"));const orig=originalAttrs.get(el);el.setAttribute("aria-label",lang==="en"?(translations[orig]||orig):orig)});
- document.querySelectorAll(".language button").forEach(b=>b.setAttribute("aria-pressed",String(b.dataset.lang===lang)));
+ document.querySelectorAll("[aria-label]").forEach(el=>{if(!originalAttrs.has(el))originalAttrs.set(el,el.getAttribute("aria-label"));const orig=originalAttrs.get(el);const desired=lang==="en"?(translations[orig]||orig):orig;if(el.getAttribute("aria-label")!==desired)el.setAttribute("aria-label",desired)});
+ document.querySelectorAll(".language button").forEach(b=>if(b.getAttribute("aria-pressed")!==String(b.dataset.lang===lang))b.setAttribute("aria-pressed",String(b.dataset.lang===lang)));
 }
 const group=document.createElement("div");group.className="language";group.setAttribute("role","group");group.setAttribute("aria-label","Language / Langue");
 for(const [code,label] of [["fr","🇫🇷 FR"],["en","🇬🇧 EN"]]){const b=document.createElement("button");b.type="button";b.dataset.lang=code;b.textContent=label;b.setAttribute("aria-label",code==="fr"?"Français":"English");b.onclick=()=>{lang=code;try{localStorage.setItem(languageKey,code)}catch(e){}apply()};group.appendChild(b)}
