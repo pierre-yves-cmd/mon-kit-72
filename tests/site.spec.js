@@ -41,8 +41,8 @@ test('both languages cover all four steps, groceries and affiliate links', async
         const englishItems = await page.locator('#items label strong, #items label > small').allTextContents();
         englishItems.forEach((text, index) => expect(text).not.toBe(frenchItems[index]));
       }
-      const links = page.locator('.inline-affiliate a');
-      await expect(links).toHaveCount(i === 0 ? 1 : i === 2 ? 4 : 0);
+      const links = page.locator('.inline-affiliate a:visible');
+      await expect(links).toHaveCount([2, 5, 8, 0][i]);
       for (const link of await links.all()) {
         await expect(link).toHaveText(code === 'en' ? 'Find on Amazon' : 'Voir sur Amazon');
         const url = new URL(await link.getAttribute('href'));
@@ -143,7 +143,7 @@ test('keyboard checklist action updates progress and affiliate visibility; delay
   await page.locator('#item-0-0').focus();
   await page.keyboard.press('Space');
   await expect(page.locator('#item-0-0')).toBeChecked();
-  await expect(page.locator('.inline-affiliate')).toHaveCount(0);
+  await expect(page.locator('#item-0-0').locator('..').locator('.inline-affiliate')).toHaveCount(0);
   await expect(page.locator('#progress')).toHaveAttribute('aria-valuenow', '5');
   await page.locator('#next').click();
   await page.locator('#copyShop').click();
@@ -151,4 +151,44 @@ test('keyboard checklist action updates progress and affiliate visibility; delay
   await language(page, 'en');
   await page.evaluate(() => window.finishCopy());
   expect(errors).toEqual([]);
+});
+
+test('groceries have relevant searches which disappear only when checked and survive rerenders', async ({ page }) => {
+  await page.goto('/');
+  await page.locator('#next').click();
+  const expected = {
+    water: 'eau minerale plate bouteilles pack',
+    meals: 'plats cuisines conserve ouverture facile a consommer froid',
+    nuts: 'fruits secs noix sachets',
+    bars: 'barres energetiques cereales',
+    fruit: 'compote gourde longue conservation'
+  };
+  for (const [id, query] of Object.entries(expected)) {
+    const row = page.locator(`#shop-${id}`).locator('..');
+    expect(new URL(await row.locator('a').getAttribute('href')).searchParams.get('k')).toBe(query);
+    await page.locator(`#shop-${id}`).check();
+    await expect(row.locator('a')).toHaveCount(0);
+    await language(page, 'en');
+    await expect(row.locator('a')).toHaveCount(0);
+    await page.reload();
+    await expect(page.locator(`#shop-${id}`)).toBeChecked();
+    await expect(row.locator('a')).toHaveCount(0);
+    await page.locator(`#shop-${id}`).uncheck();
+    await expect(row.locator('a')).toHaveText('Find on Amazon');
+    await language(page, 'fr');
+    await expect(row.locator('a')).toHaveText('Voir sur Amazon');
+  }
+  await page.locator('[data-count="1"]').click();
+  await expect(page.locator('#shopping .inline-affiliate a')).toHaveCount(5);
+  // Opening a search must not toggle the enclosing label's checkbox.
+  await page.context().route('https://www.amazon.fr/**', route => route.fulfill({body: 'Search preview'}));
+  const popupPromise = page.waitForEvent('popup');
+  await page.locator('#shop-meals').locator('..').locator('a').click();
+  const popup = await popupPromise;
+  await expect(popup).toHaveURL(/https:\/\/www\.amazon\.fr\/s\?/);
+  expect(new URL(popup.url()).searchParams.get('tag')).toBe('monkit72h-21');
+  await popup.close();
+  await expect(page.locator('#shop-meals')).not.toBeChecked();
+  await page.locator('#next').click();
+  await expect(page.locator('#item-2-3').locator('..').locator('a')).toHaveCount(0);
 });
