@@ -42,7 +42,7 @@ perdre le focus sur une case après son activation.
 
 ## Vérification et limites
 
-Suite automatisée : cinq scénarios, chacun sur ordinateur et mobile, soit dix
+Suite automatisée : six scénarios, chacun sur ordinateur et mobile, soit douze
 exécutions. Les données existantes sont injectées avant ouverture ; les tests
 vérifient leur conservation lors des changements de langue, le rechargement,
 les confirmations de reset, les bornes de quantités, l’action clavier, la copie
@@ -56,3 +56,22 @@ permissions système et le repli `execCommand` ne sont pas validés. Les pages
 Amazon, prix, stocks et l’attribution effective des commissions ne sont pas
 vérifiés ; aucune commande ni achat n’est effectué. Aucun déploiement de
 production n’est réalisé par cette correction.
+
+## Extension des recherches Amazon
+
+Quinze lignes d’achat ont une recherche explicite : sac et housse de pluie ;
+eau en bouteilles, repas en conserve à ouverture facile consommables froids,
+fruits secs/noix, barres et compotes ; radio, lampe, premiers secours,
+couverture de survie, hygiène, batterie externe, pochette étanche pour les
+documents et sifflet. Les actions de test/entretien et les médicaments restent
+sans lien. Aucun produit précis, prix ou stock n’est garanti par une recherche.
+
+La même fonction construit les liens de courses et de matériel, avec le tag
+`monkit72h-21`, les mentions de rémunération et les libellés FR/EN. Les liens
+restent masqués quand la ligne est cochée, y compris après rechargement ou
+changement de langue. Les recherches sont définies manuellement pour éviter
+une conversion aveugle des libellés en propositions commerciales. Le test des
+courses vérifie chaque requête, le cochage/décochage, le rechargement, le
+changement du nombre de personnes et l’ouverture d’un lien sans cocher la case.
+L’ouverture est interceptée localement ; les résultats réels d’Amazon ne sont
+pas vérifiés.
